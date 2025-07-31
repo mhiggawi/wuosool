@@ -9,6 +9,10 @@ if (isset($_POST['switch_language'])) {
     $lang = $_POST['switch_language'] === 'en' ? 'en' : 'ar';
     $_SESSION['language'] = $lang;
     setcookie('language', $lang, time() + (365 * 24 * 60 * 60), '/');
+    // Redirect to avoid re-posting
+    $redirect_url = $_SERVER['REQUEST_URI'];
+    header("Location: $redirect_url");
+    exit;
 }
 
 // Language texts
@@ -31,6 +35,10 @@ $texts = [
         'invalid_phone_format' => 'يرجى إدخال رقم الجوال المحلي فقط (بدون رمز الدولة). مثال: 791234567',
         'invalid_phone_international' => 'يرجى إدخال الرقم مع رمز الدولة الكامل (مثال: 96279...).',
         'invalid_phone_general' => 'صيغة رقم الجوال غير صحيحة. يرجى إدخال الرقم كاملاً مع رمز الدولة.',
+        'event_location' => 'مكان الحفل',
+        'event_time' => 'موعد الحفل',
+        'get_directions' => 'الحصول على الاتجاهات',
+        'view_on_map' => 'عرض على الخريطة',
         'countries' => [
             '+962' => 'الأردن (+962)',
             '+966' => 'السعودية (+966)', 
@@ -70,6 +78,10 @@ $texts = [
         'invalid_phone_format' => 'Please enter local mobile number only (without country code). Example: 791234567',
         'invalid_phone_international' => 'Please enter the number with full country code (example: 96279...).',
         'invalid_phone_general' => 'Invalid mobile number format. Please enter the full number with country code.',
+        'event_location' => 'Event Location',
+        'event_time' => 'Event Time',
+        'get_directions' => 'Get Directions',
+        'view_on_map' => 'View on Map',
         'countries' => [
             '+962' => 'Jordan (+962)',
             '+966' => 'Saudi Arabia (+966)', 
@@ -264,6 +276,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['switch_language'])) 
         }
     }
 }
+
+function safe_html($value, $default = '') {
+    return htmlspecialchars($value ?? $default, ENT_QUOTES, 'UTF-8');
+}
+
 $mysqli->close();
 ?>
 <!DOCTYPE html>
@@ -271,127 +288,434 @@ $mysqli->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل حضور: <?= htmlspecialchars($event['event_name']) ?></title>
+    <title>تسجيل حضور: <?= safe_html($event['event_name']) ?></title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="<?= safe_html($event['event_paragraph_ar'] ?? 'دعوة خاصة') ?>">
+    <meta name="keywords" content="دعوة,حفل,زفاف,invitation,wedding">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="<?= safe_html($event['event_name'] ?? 'دعوة') ?>">
+    <meta property="og:description" content="<?= safe_html($event['event_paragraph_ar'] ?? 'دعوة خاصة') ?>">
+    <meta property="og:image" content="<?= safe_html($event['background_image_url'] ?? '') ?>">
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .card-container { max-width: 500px; width: 100%; background-color: #ffffff; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
-        .card-content { padding: 30px; }
-        .form-group { margin-bottom: 1.25rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; }
-        .phone-input-container { display: flex; gap: 10px; }
-        .phone-input-container select { flex: 0 0 40%; }
-        .phone-input-container input { flex: 1; }
-        .message { padding: 10px; margin-bottom: 15px; border-radius: 8px; text-align: center; }
-        .message.success { background-color: #d1fae5; color: #065f46; }
-        .message.error { background-color: #fee2e2; color: #991b1b; }
-        .help-text { font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem; }
-        #phone-help-text { min-height: 1.25rem; }
-        
-        /* Language Toggle Button - positioned at bottom */
-        .language-toggle {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 8px 16px;
-            background-color: #f3f4f6;
-            color: #374151;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
+        body { 
+            font-family: <?= $lang === 'ar' ? "'Cairo', sans-serif" : "'Inter', sans-serif" ?>; 
+            background: white; 
+            min-height: 100vh;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 20px;
         }
-        .language-toggle:hover {
-            background-color: #e5e7eb;
-            border-color: #9ca3af;
+        
+        .card-container { 
+            max-width: 500px; 
+            width: 100%; 
+            background: white;
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            position: relative;
+        }
+        
+        .language-toggle {
+            position: absolute;
+            top: 15px;
+            <?= $lang === 'ar' ? 'left: 15px' : 'right: 15px' ?>;
+            z-index: 10;
+        }
+        
+        .language-toggle button {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #e5e7eb;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #374151;
+        }
+        
+        .language-toggle button:hover {
+            background: #f3f4f6;
+            transform: translateY(-1px);
+        }
+        
+        .description-box {
+            padding: 40px 25px;
+            background: #f8f9fa;
+            text-align: center;
+            color: #374151;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .card-content { 
+            padding: 30px; 
+            background: white;
+        }
+        
+        .event-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border-radius: 15px;
+            border: 1px solid #60a5fa;
+        }
+        
+        .location-card {
+            padding: 20px;
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            border-radius: 12px;
+            border: 1px solid #22c55e;
+            margin: 20px 0;
+        }
+        
+        .form-group { 
+            margin-bottom: 1.25rem; 
+        }
+        
+        .form-group label { 
+            display: block; 
+            margin-bottom: 0.5rem; 
+            font-weight: 600; 
+            color: #374151; 
+        }
+        
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #d1d5db; 
+            border-radius: 8px; 
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+        
+        .form-group input:focus, .form-group select:focus { 
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .phone-input-container { 
+            display: flex; 
+            gap: 10px; 
+        }
+        
+        .phone-input-container select { 
+            flex: 0 0 40%; 
+        }
+        
+        .phone-input-container input { 
+            flex: 1; 
+        }
+        
+        .message { 
+            padding: 12px; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            text-align: center; 
+            font-weight: 600;
+        }
+        
+        .message.success { 
+            background-color: #dcfce7; 
+            color: #166534; 
+            border: 1px solid #22c55e;
+        }
+        
+        .message.error { 
+            background-color: #fee2e2; 
+            color: #991b1b; 
+            border: 1px solid #ef4444;
+        }
+        
+        .help-text { 
+            font-size: 0.875rem; 
+            color: #6b7280; 
+            margin-top: 0.5rem; 
+        }
+        
+        #phone-help-text { 
+            min-height: 1.25rem; 
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .action-buttons button {
+            flex: 1;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-confirm {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .btn-decline {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .action-buttons button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .action-buttons button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .event-image-container {
+            position: relative;
+            overflow: hidden;
+            background: #f8f9fa;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .event-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .event-image:hover {
+            transform: scale(1.02);
+        }
+        
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            cursor: pointer;
+        }
+        
+        .image-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .image-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .image-modal .close-button {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 10000;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 640px) {
+            .card-container {
+                margin: 10px;
+                max-width: calc(100vw - 20px);
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .phone-input-container {
+                flex-direction: column;
+            }
+            
+            .phone-input-container select,
+            .phone-input-container input {
+                flex: none;
+            }
         }
     </style>
 </head>
 <body>
     <div class="card-container">
+        <!-- Language Toggle -->
+        <div class="language-toggle">
+            <form method="POST" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="<?= safe_html($_SESSION['csrf_token']) ?>">
+                <button type="submit" name="switch_language" value="<?= $lang === 'ar' ? 'en' : 'ar' ?>">
+                    <?= $lang === 'ar' ? 'English' : 'العربية' ?>
+                </button>
+            </form>
+        </div>
+
+        <!-- Event Image or Description -->
         <?php if (!empty($event['background_image_url'])): ?>
-            <img src="<?= htmlspecialchars($event['background_image_url']) ?>" alt="<?= htmlspecialchars($event['event_name']) ?>" class="w-full h-auto">
+            <div class="event-image-container">
+                <img src="<?= safe_html($event['background_image_url']) ?>" 
+                     alt="<?= safe_html($event['event_name']) ?>" 
+                     class="event-image"
+                     loading="lazy"
+                     onclick="toggleImageView(this)">
+            </div>
+        <?php else: ?>
+            <div class="description-box">
+                <p><?= nl2br(safe_html($event['event_paragraph_ar'] ?? 'مرحباً بكم في مناسبتنا الخاصة.')) ?></p>
+            </div>
         <?php endif; ?>
 
         <div class="card-content">
-            <div class="text-center mb-6">
-                <h1 class="text-3xl font-bold text-gray-800"><?= htmlspecialchars($event['event_name']) ?></h1>
-                <p class="text-lg text-gray-600 mt-2"><?= nl2br(htmlspecialchars($event['event_date_ar'])) ?></p>
+            <!-- Event Header -->
+            <div class="event-header">
+                <h1 class="text-2xl font-bold text-blue-800 mb-2"><?= safe_html($event['event_name']) ?></h1>
+                <?php if (!empty($event['event_date_ar'])): ?>
+                <p class="text-blue-700 font-semibold">
+                    <i class="fas fa-calendar"></i>
+                    <?= nl2br(safe_html($event['event_date_ar'])) ?>
+                </p>
+                <?php endif; ?>
             </div>
+
+            <!-- Location Card -->
+            <?php if (!empty($event['venue_ar']) || !empty($event['Maps_link'])): ?>
+            <div class="location-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-green-800 mb-1">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <?= $t['event_location'] ?>
+                        </h3>
+                        <?php if (!empty($event['venue_ar'])): ?>
+                        <p class="text-green-700">
+                            <?= safe_html($event['venue_ar']) ?>
+                        </p>
+                        <?php endif; ?>
+                    </div>
+                    <?php if (!empty($event['Maps_link'])): ?>
+                    <a href="<?= safe_html($event['Maps_link']) ?>" 
+                       target="_blank" 
+                       class="text-green-600 hover:text-green-800 transition-colors"
+                       title="<?= $t['get_directions'] ?>">
+                        <i class="fas fa-external-link-alt text-xl"></i>
+                    </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endif; ?>
             
             <?php if ($message && !$redirect_url): ?>
-                <div class="message <?= $messageType ?>"><?= htmlspecialchars($message) ?></div>
+                <div class="message <?= $messageType ?>"><?= safe_html($message) ?></div>
             <?php endif; ?>
 
             <?php if (!$registration_successful): ?>
                 <form id="rsvpForm" method="POST" action="register.php?event_id=<?= $event_id ?>" novalidate>
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                    <input type="hidden" name="csrf_token" value="<?= safe_html($_SESSION['csrf_token']) ?>">
                     <input type="hidden" name="rsvp_status" id="rsvp_status" value="confirmed">
-                    <p class="text-center text-gray-700 mb-6"><?= $t['registration_instruction'] ?></p>
+                    
+                    <p class="text-center text-gray-700 mb-6 font-medium"><?= $t['registration_instruction'] ?></p>
                     
                     <div class="form-group">
-                        <label for="name_ar"><?= $t['name_label'] ?></label>
+                        <label for="name_ar">
+                            <i class="fas fa-user text-blue-600"></i>
+                            <?= $t['name_label'] ?>
+                        </label>
                         <input type="text" id="name_ar" name="name_ar" required 
-                               value="<?= htmlspecialchars($_POST['name_ar'] ?? '') ?>">
+                               value="<?= safe_html($_POST['name_ar'] ?? '') ?>"
+                               placeholder="أدخل اسمك الكريم">
                     </div>
                     
                     <div class="form-group">
-                        <label for="country_code"><?= $t['phone_label'] ?></label>
+                        <label for="country_code">
+                            <i class="fas fa-phone text-blue-600"></i>
+                            <?= $t['phone_label'] ?>
+                        </label>
                         <div class="phone-input-container">
                             <select id="country_code" name="country_code" required onchange="updatePhonePlaceholder()">
                                 <option value=""><?= $t['select_country'] ?></option>
                                 <?php foreach ($t['countries'] as $code => $name): ?>
-                                    <option value="<?= htmlspecialchars($code) ?>" 
+                                    <option value="<?= safe_html($code) ?>" 
                                             <?= (($_POST['country_code'] ?? '+962') === $code) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($name) ?>
+                                        <?= safe_html($name) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
                             <input type="tel" id="phone_number" name="phone_number" required placeholder="791234567"
-                                   value="<?= htmlspecialchars($_POST['phone_number'] ?? '') ?>">
+                                   value="<?= safe_html($_POST['phone_number'] ?? '') ?>">
                         </div>
                         <div class="help-text" id="phone-help-text"><?= $t['enter_local_number'] ?></div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="guests_count"><?= $t['guests_count_label'] ?></label>
+                        <label for="guests_count">
+                            <i class="fas fa-users text-blue-600"></i>
+                            <?= $t['guests_count_label'] ?>
+                        </label>
                         <input type="number" id="guests_count" name="guests_count" 
-                               value="<?= htmlspecialchars($_POST['guests_count'] ?? '1') ?>" min="1" max="20" required>
+                               value="<?= safe_html($_POST['guests_count'] ?? '1') ?>" min="1" max="20" required>
                     </div>
                     
-                    <div class="flex gap-4 mt-6">
+                    <div class="action-buttons">
                         <button type="submit" onclick="document.getElementById('rsvp_status').value='confirmed';" 
-                                class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg">
+                                class="btn-confirm">
+                            <i class="fas fa-check"></i>
                             <?= $t['confirm_attendance'] ?>
                         </button>
                         <button type="submit" onclick="document.getElementById('rsvp_status').value='canceled';" 
-                                class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg">
+                                class="btn-decline">
+                            <i class="fas fa-times"></i>
                             <?= $t['decline_attendance'] ?>
                         </button>
                     </div>
                 </form>
             <?php endif; ?>
-            
-            <!-- Language Toggle at Bottom -->
-            <div class="text-center">
-                <form method="POST" style="display: inline;">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                    <button type="submit" name="switch_language" value="<?= $lang === 'ar' ? 'en' : 'ar' ?>" 
-                            class="language-toggle">
-                        <?= $lang === 'ar' ? 'English' : 'العربية' ?>
-                    </button>
-                </form>
-            </div>
         </div>
+    </div>
+
+    <!-- Image Modal for full screen view -->
+    <div id="imageModal" class="image-modal" onclick="closeImageModal()">
+        <span class="close-button" onclick="closeImageModal()">&times;</span>
+        <img id="modalImage" src="" alt="Full size image">
     </div>
 
     <?php if ($registration_successful && !empty($redirect_url)): ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            alert("<?= addslashes(htmlspecialchars($message)) ?>");
+            alert("<?= addslashes(safe_html($message)) ?>");
             window.location.href = "<?= $redirect_url ?>";
         });
     </script>
@@ -457,6 +781,55 @@ $mysqli->close();
                 alert(lang === 'ar' ? 'يرجى إدخال رقم هاتف صحيح' : 'Please enter a valid phone number');
                 return;
             }
+        });
+
+        // Image handling functions
+        function toggleImageView(img) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            
+            modalImg.src = img.src;
+            modal.classList.add('active');
+            
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('active');
+            
+            // Restore body scroll
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+
+        // Enhanced form interactions
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+                this.parentElement.style.transition = 'transform 0.2s ease';
+            });
+            
+            element.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+
+        // Button click effects
+        document.querySelectorAll('.action-buttons button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
         });
     </script>
 </body>
