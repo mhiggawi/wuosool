@@ -12,12 +12,84 @@ error_reporting(E_ALL);
 
 session_start();
 require_once 'db_config.php';
-require_once 'languages.php';
 
 // --- Language System ---
-handleLanguageSwitch();
-$lang = getCurrentLanguage();
-$t = getPageTexts('admin', $lang);
+$lang = $_SESSION['language'] ?? $_COOKIE['language'] ?? 'ar';
+if (isset($_POST['switch_language'])) {
+    $lang = $_POST['switch_language'] === 'en' ? 'en' : 'ar';
+    $_SESSION['language'] = $lang;
+    setcookie('language', $lang, time() + (365 * 24 * 60 * 60), '/');
+    // Redirect to avoid re-posting
+    $redirect_url = $_SERVER['REQUEST_URI'];
+    header("Location: $redirect_url");
+    exit;
+}
+
+// Language texts
+$texts = [
+    'ar' => [
+        'administration' => 'الإدارة',
+        'logout' => 'تسجيل الخروج',
+        'event_settings' => 'إعدادات الحفل',
+        'user_management' => 'إدارة المستخدمين',
+        'event_details' => 'تفاصيل الحفل',
+        'event_name' => 'اسم الحفل',
+        'google_maps_link' => 'رابط خرائط جوجل',
+        'event_date_ar' => 'تاريخ الحفل (عربي)',
+        'event_date_en' => 'تاريخ الحفل (إنجليزي)',
+        'venue_ar' => 'مكان الحفل (عربي)',
+        'venue_en' => 'مكان الحفل (إنجليزي)',
+        'event_description_ar' => 'وصف الحفل (عربي)',
+        'event_description_en' => 'وصف الحفل (إنجليزي)',
+        'image_settings' => 'إعدادات الصور',
+        'display_image' => 'صورة العرض',
+        'whatsapp_image' => 'صورة الواتساب',
+        'current_display_image' => 'الصورة الحالية للعرض',
+        'current_whatsapp_image' => 'الصورة الحالية للواتساب',
+        'upload_display_image' => 'رفع صورة العرض',
+        'upload_whatsapp_image' => 'رفع صورة الواتساب',
+        'remove_current_image' => 'حذف الصورة الحالية',
+        'image_preview' => 'معاينة الصورة',
+        'cancel_selection' => 'إلغاء الاختيار',
+        'qr_settings' => 'إعدادات QR',
+        'webhook_settings' => 'إعدادات Webhook',
+        'save_all_settings' => 'حفظ جميع الإعدادات',
+        'image_saved_success' => 'تم حفظ الصورة بنجاح',
+        'image_removed_success' => 'تم حذف الصورة بنجاح'
+    ],
+    'en' => [
+        'administration' => 'Administration',
+        'logout' => 'Logout',
+        'event_settings' => 'Event Settings',
+        'user_management' => 'User Management',
+        'event_details' => 'Event Details',
+        'event_name' => 'Event Name',
+        'google_maps_link' => 'Google Maps Link',
+        'event_date_ar' => 'Event Date (Arabic)',
+        'event_date_en' => 'Event Date (English)',
+        'venue_ar' => 'Venue (Arabic)',
+        'venue_en' => 'Venue (English)',
+        'event_description_ar' => 'Event Description (Arabic)',
+        'event_description_en' => 'Event Description (English)',
+        'image_settings' => 'Image Settings',
+        'display_image' => 'Display Image',
+        'whatsapp_image' => 'WhatsApp Image',
+        'current_display_image' => 'Current Display Image',
+        'current_whatsapp_image' => 'Current WhatsApp Image',
+        'upload_display_image' => 'Upload Display Image',
+        'upload_whatsapp_image' => 'Upload WhatsApp Image',
+        'remove_current_image' => 'Remove Current Image',
+        'image_preview' => 'Image Preview',
+        'cancel_selection' => 'Cancel Selection',
+        'qr_settings' => 'QR Settings',
+        'webhook_settings' => 'Webhook Settings',
+        'save_all_settings' => 'Save All Settings',
+        'image_saved_success' => 'Image saved successfully',
+        'image_removed_success' => 'Image removed successfully'
+    ]
+];
+
+$t = $texts[$lang];
 
 // --- Security Check & Get Event ID ---
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true || $_SESSION['role'] !== 'admin') {
@@ -235,7 +307,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_event_settings
             $message = $t['image_removed_success']; $messageType = 'success';
         }
 
-        // Update database with new columns for separate images
+        // Update database with separate images
         $stmt = $mysqli->prepare("UPDATE events SET 
             event_name=?, event_date_ar=?, event_date_en=?, venue_ar=?, venue_en=?, Maps_link=?, 
             event_paragraph_ar=?, event_paragraph_en=?, 
@@ -303,6 +375,11 @@ if (isset($_GET['message'])) {
 function safe_html($value, $default = '') {
     return htmlspecialchars($value ?? $default, ENT_QUOTES, 'UTF-8');
 }
+
+function getPageTitle($title, $lang) {
+    $site_name = $lang === 'ar' ? 'وصول' : 'Wosuol';
+    return "{$title} - {$site_name}";
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?= $lang ?>" dir="<?= $lang === 'ar' ? 'rtl' : 'ltr' ?>">
@@ -358,7 +435,12 @@ function safe_html($value, $default = '') {
         <div class="flex justify-between items-center mb-4">
              <h1 class="text-3xl font-bold text-gray-800"><?= $t['administration'] ?>: "<?= safe_html($event['event_name']) ?>"</h1>
              <div class="flex gap-3 items-center">
-                 <?= getLanguageToggleButton($lang, $_SESSION['csrf_token']) ?>
+                 <form method="POST" style="display: inline;">
+                     <button type="submit" name="switch_language" value="<?= $lang === 'ar' ? 'en' : 'ar' ?>" 
+                             class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 transition-colors">
+                         <?= $lang === 'ar' ? 'English' : 'العربية' ?>
+                     </button>
+                 </form>
                  <a href="logout.php" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg"><?= $t['logout'] ?></a>
              </div>
         </div>
@@ -683,7 +765,9 @@ function safe_html($value, $default = '') {
     </div>
 
     <!-- Footer -->
-    <?= getFooterHtml($lang) ?>
+    <footer class='text-center text-gray-600 text-sm mt-8 py-4 border-t'>
+        <p><?= $lang === 'ar' ? 'جميع الحقوق محفوظة &copy; 2025 وصول' : 'All Rights Reserved &copy; 2025 Wosuol' ?></p>
+    </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
