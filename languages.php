@@ -89,6 +89,14 @@ function getTexts($page = 'common') {
                 'share_invitation' => 'مشاركة الدعوة',
                 'view_location' => 'عرض الموقع',
                 'guest_details' => 'تفاصيل الضيف',
+                'welcome_guest' => 'أهلاً وسهلاً',
+                'dear_guest' => 'ضيف كريم',
+                'get_directions' => 'الحصول على الاتجاهات',
+                'entry_card' => 'بطاقة الدخول',
+                'qr_code' => 'رمز QR',
+                'show_at_entrance' => 'يرجى إظهار هذا الرمز عند الدخول',
+                'csrf_error' => 'خطأ في التحقق من صحة الطلب.',
+                'rate_limit_error' => 'محاولات كثيرة جداً. يرجى الانتظار.',
             ],
             
             // نصوص صفحة التسجيل
@@ -248,6 +256,14 @@ function getTexts($page = 'common') {
                 'share_invitation' => 'Share Invitation',
                 'view_location' => 'View Location',
                 'guest_details' => 'Guest Details',
+                'welcome_guest' => 'Welcome',
+                'dear_guest' => 'Dear Guest',
+                'get_directions' => 'Get Directions',
+                'entry_card' => 'Entry Card',
+                'qr_code' => 'QR Code',
+                'show_at_entrance' => 'Please show this code at the entrance',
+                'csrf_error' => 'Security token mismatch.',
+                'rate_limit_error' => 'Too many attempts. Please wait.',
             ],
             
             // Register page texts
@@ -465,23 +481,27 @@ function getCountriesList($lang = 'ar') {
 }
 
 /**
- * دالة مساعدة للحصول على نص معين
+ * دالة مساعدة للحصول على نص معين - تحقق من وجود الدالة أولاً
  * @param string $key
  * @param array $texts
  * @param string $default
  * @return string
  */
-function getText($key, $texts, $default = '') {
-    return $texts[$key] ?? $default;
+if (!function_exists('getText')) {
+    function getText($key, $texts, $default = '') {
+        return $texts[$key] ?? $default;
+    }
 }
 
 /**
- * دالة آمنة لعرض HTML
+ * دالة آمنة لعرض HTML - تحقق من وجود الدالة أولاً
  * @param string $value
  * @param string $default
  * @return string
  */
-function safeHtml($value, $default = '') {
-    return htmlspecialchars($value ?? $default, ENT_QUOTES, 'UTF-8');
+if (!function_exists('safeHtml')) {
+    function safeHtml($value, $default = '') {
+        return htmlspecialchars($value ?? $default, ENT_QUOTES, 'UTF-8');
+    }
 }
 ?>
