@@ -572,12 +572,11 @@ $mysqli->close();
             margin-bottom: 20px;
         }
         
-        /* صور الحدث - خيارات محسنة للدعوات */
+        /* صور الحدث - خيارات متعددة */
         .event-image-container {
             position: relative;
             overflow: hidden;
             background: #f8f9fa;
-            border-radius: 0 0 15px 15px;
         }
         
         .event-image {
@@ -588,48 +587,30 @@ $mysqli->close();
             transition: transform 0.3s ease;
         }
         
-        /* الخيار المثالي للدعوات - نسبة 3:2 */
-        .event-image.optimal {
-            height: 300px;
-            object-fit: cover;
-            object-position: center;
-        }
-        
-        /* للدعوات الطولية */
-        .event-image.portrait {
-            height: 400px;
-            object-fit: cover;
-            object-position: center top;
-        }
-        
-        /* للدعوات العريضة */
-        .event-image.landscape {
+        /* الخيار 1: صورة بارتفاع ثابت مع object-fit */
+        .event-image.fixed-height {
             height: 250px;
             object-fit: cover;
-            object-position: center;
         }
         
-        /* صورة كاملة للدعوات التفصيلية */
-        .event-image.full-display {
-            max-height: 450px;
+        /* الخيار 2: صورة بنسبة عرض للارتفاع محددة */
+        .event-image.aspect-ratio {
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+        
+        /* الخيار 3: صورة كاملة بحد أقصى للارتفاع */
+        .event-image.max-height {
+            max-height: 400px;
             object-fit: contain;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            padding: 10px;
+            background: white;
         }
         
-        /* تصميم متجاوب للأجهزة المختلفة */
-        @media (max-width: 768px) {
-            .event-image.optimal { height: 250px; }
-            .event-image.portrait { height: 300px; }
-            .event-image.landscape { height: 200px; }
-            .event-image.full-display { max-height: 350px; padding: 5px; }
-        }
-        
-        @media (max-width: 480px) {
-            .event-image.optimal { height: 200px; }
-            .event-image.portrait { height: 250px; }
-            .event-image.landscape { height: 180px; }
-            .event-image.full-display { max-height: 280px; }
+        /* الخيار 4: صورة متجاوبة بالكامل */
+        .event-image.responsive {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
         }
         
         /* hover effect */
@@ -1271,7 +1252,7 @@ $mysqli->close();
             if (!img) return;
             
             // Remove all style classes
-            img.classList.remove('optimal', 'portrait', 'landscape', 'full-display');
+            img.classList.remove('fixed-height', 'aspect-ratio', 'max-height', 'responsive');
             
             // Add selected style
             if (style && style !== 'default') {
@@ -1284,43 +1265,9 @@ $mysqli->close();
 
         // Load saved image style preference
         document.addEventListener('DOMContentLoaded', function() {
-            const savedStyle = localStorage.getItem('preferred_image_style') || 'optimal';
+            const savedStyle = localStorage.getItem('preferred_image_style') || 'responsive';
             setImageStyle(savedStyle);
-            
-            // Auto-detect best style based on image dimensions
-            autoDetectImageStyle();
         });
-
-        // Auto-detect optimal image style based on image dimensions
-        function autoDetectImageStyle() {
-            const img = document.querySelector('.event-image');
-            if (!img) return;
-
-            img.onload = function() {
-                const aspectRatio = this.naturalWidth / this.naturalHeight;
-                let suggestedStyle = 'optimal';
-
-                if (aspectRatio > 1.8) {
-                    // Wide image (landscape)
-                    suggestedStyle = 'landscape';
-                } else if (aspectRatio < 0.8) {
-                    // Tall image (portrait)  
-                    suggestedStyle = 'portrait';
-                } else if (aspectRatio >= 1.3 && aspectRatio <= 1.7) {
-                    // Standard invitation ratio
-                    suggestedStyle = 'optimal';
-                } else {
-                    // Square or close to square
-                    suggestedStyle = 'full-display';
-                }
-
-                // Apply auto-detected style if no preference saved
-                if (!localStorage.getItem('preferred_image_style')) {
-                    setImageStyle(suggestedStyle);
-                    console.log(`Auto-detected image style: ${suggestedStyle} (ratio: ${aspectRatio.toFixed(2)})`);
-                }
-            };
-        }
     </script>
     <?php endif; ?>
 </body>
