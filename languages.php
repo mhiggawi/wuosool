@@ -1,507 +1,625 @@
 <?php
-// languages.php - نظام اللغات المركزي
-// استخدام: require_once 'languages.php';
+// dashboard.php - Enhanced with languages and improved functionality
+session_start();
+require_once 'db_config.php';
 
-/**
- * دالة الحصول على النصوص حسب اللغة
- * @param string $page اسم الصفحة (optional)
- * @return array
- */
-function getTexts($page = 'common') {
-    $texts = [
-        'ar' => [
-            // نصوص مشتركة
-            'common' => [
-                'save' => 'حفظ',
-                'cancel' => 'إلغاء',
-                'delete' => 'حذف',
-                'edit' => 'تعديل',
-                'add' => 'إضافة',
-                'close' => 'إغلاق',
-                'yes' => 'نعم',
-                'no' => 'لا',
-                'loading' => 'جاري التحميل...',
-                'processing' => 'جاري المعالجة...',
-                'success' => 'تم بنجاح',
-                'error' => 'حدث خطأ',
-                'warning' => 'تحذير',
-                'info' => 'معلومات',
-                'confirm' => 'تأكيد',
-                'search' => 'بحث',
-                'filter' => 'فلتر',
-                'export' => 'تصدير',
-                'import' => 'استيراد',
-                'print' => 'طباعة',
-                'download' => 'تحميل',
-                'upload' => 'رفع',
-                'send' => 'إرسال',
-                'back' => 'رجوع',
-                'next' => 'التالي',
-                'previous' => 'السابق',
-                'continue' => 'متابعة',
-                'finish' => 'إنهاء',
-                'name' => 'الاسم',
-                'email' => 'البريد الإلكتروني',
-                'phone' => 'الهاتف',
-                'address' => 'العنوان',
-                'date' => 'التاريخ',
-                'time' => 'الوقت',
-                'status' => 'الحالة',
-                'active' => 'نشط',
-                'inactive' => 'غير نشط',
-                'enabled' => 'مفعل',
-                'disabled' => 'معطل',
-                'login' => 'تسجيل الدخول',
-                'logout' => 'تسجيل الخروج',
-                'register' => 'تسجيل',
-                'username' => 'اسم المستخدم',
-                'password' => 'كلمة المرور',
-                'dashboard' => 'لوحة التحكم',
-                'settings' => 'الإعدادات',
-                'profile' => 'الملف الشخصي',
-                'help' => 'مساعدة',
-                'about' => 'حول',
-                'contact' => 'اتصل بنا',
-                'home' => 'الرئيسية',
-            ],
-            
-            // نصوص صفحة RSVP
-            'rsvp' => [
-                'wedding_blessing' => 'بارك الله لهما وبارك عليهما وجمع بينهما بخير',
-                'wedding_occasion' => 'وذلك بمناسبة حفل زفافهما المبارك',
-                'location_in' => 'في',
-                'guest_name_label' => 'السيد/ة',
-                'guest_count' => 'عدد الضيوف',
-                'table_number' => 'رقم الطاولة',
-                'not_specified' => 'غير محدد',
-                'confirm_attendance' => 'تأكيد الحضور',
-                'decline_attendance' => 'إلغاء الحضور',
-                'already_confirmed' => 'تم تأكيد حضورك مسبقاً',
-                'already_declined' => 'تم تسجيل اعتذارك مسبقاً',
-                'success_confirmed' => 'تم تأكيد حضورك بنجاح!',
-                'success_declined' => 'تم تسجيل اعتذارك.',
-                'error_occurred' => 'حدث خطأ، يرجى المحاولة مرة أخرى.',
-                'connection_error' => 'خطأ في الاتصال، يرجى التحقق من الإنترنت.',
-                'invalid_link' => 'رابط الدعوة غير صحيح أو منتهي الصلاحية.',
-                'show_qr_instruction' => 'يرجى إظهار هذا الرمز عند الدخول',
-                'download_qr' => 'تحميل رمز QR',
-                'add_to_calendar' => 'إضافة للتقويم',
-                'share_invitation' => 'مشاركة الدعوة',
-                'view_location' => 'عرض الموقع',
-                'guest_details' => 'تفاصيل الضيف',
-                'welcome_guest' => 'أهلاً وسهلاً',
-                'dear_guest' => 'ضيف كريم',
-                'get_directions' => 'الحصول على الاتجاهات',
-                'entry_card' => 'بطاقة الدخول',
-                'qr_code' => 'رمز QR',
-                'show_at_entrance' => 'يرجى إظهار هذا الرمز عند الدخول',
-                'csrf_error' => 'خطأ في التحقق من صحة الطلب.',
-                'rate_limit_error' => 'محاولات كثيرة جداً. يرجى الانتظار.',
-            ],
-            
-            // نصوص صفحة التسجيل
-            'register' => [
-                'registration_instruction' => 'يرجى تسجيل بياناتك لتأكيد الحضور أو الاعتذار.',
-                'name_label' => 'الاسم الكريم:',
-                'phone_label' => 'رقم الجوال (مع رمز الدولة):',
-                'guests_count_label' => 'عدد الضيوف (شاملاً لك):',
-                'confirm_attendance' => 'تأكيد الحضور',
-                'decline_attendance' => 'الاعتذار عن الحضور',
-                'select_country' => 'اختر الدولة',
-                'enter_local_number' => 'أدخل رقم الجوال المحلي فقط (مثال: 791234567)',
-                'enter_full_number' => 'أدخل الرقم كاملاً مع رمز الدولة (مثال: +96279123456)',
-                'choose_country_first' => 'اختر الدولة أولاً',
-                'registration_success_confirm' => 'تم تأكيد حضورك بنجاح! سيتم الآن نقلك لصفحة الدعوة الخاصة بك للحصول على QR Code.',
-                'registration_success_cancel' => 'شكراً لك، تم تسجيل اعتذارك عن الحضور.',
-                'registration_error' => 'حدث خطأ أثناء التسجيل. قد يكون رقم الهاتف مسجلاً مسبقاً.',
-                'fill_all_fields' => 'الرجاء إدخال جميع الحقول المطلوبة.',
-                'invalid_phone_format' => 'يرجى إدخال رقم الجوال المحلي فقط (بدون رمز الدولة). مثال: 791234567',
-                'invalid_phone_international' => 'يرجى إدخال الرقم مع رمز الدولة الكامل (مثال: 96279...).',
-                'invalid_phone_general' => 'صيغة رقم الجوال غير صحيحة. يرجى إدخال الرقم كاملاً مع رمز الدولة.',
-            ],
-            
-            // نصوص صفحة الدخول
-            'login' => [
-                'login_title' => 'تسجيل الدخول',
-                'welcome_back' => 'مرحباً بعودتك',
-                'login_subtitle' => 'يرجى تسجيل الدخول للوصول إلى لوحة التحكم',
-                'username_label' => 'اسم المستخدم',
-                'username_placeholder' => 'أدخل اسم المستخدم',
-                'password_label' => 'كلمة المرور',
-                'password_placeholder' => 'أدخل كلمة المرور',
-                'remember_me' => 'تذكرني',
-                'login_button' => 'تسجيل الدخول',
-                'logging_in' => 'جاري تسجيل الدخول...',
-                'show_password' => 'إظهار كلمة المرور',
-                'hide_password' => 'إخفاء كلمة المرور',
-                'error_invalid_credentials' => 'اسم المستخدم أو كلمة المرور غير صحيحة.',
-                'error_account_locked' => 'تم قفل الحساب مؤقتاً بسبب المحاولات المتكررة. يرجى المحاولة بعد {minutes} دقائق.',
-                'error_too_many_attempts' => 'محاولات كثيرة جداً. يرجى الانتظار {seconds} ثانية قبل المحاولة مرة أخرى.',
-                'error_fill_fields' => 'الرجاء إدخال اسم المستخدم وكلمة المرور.',
-                'error_csrf' => 'خطأ في التحقق من صحة الطلب. يرجى المحاولة مرة أخرى.',
-                'error_general' => 'عذراً، حدث خطأ ما. يرجى المحاولة مرة أخرى.',
-                'error_no_event_access' => 'هذا المستخدم غير مصرح له بالدخول لعدم ربطه بأي حفل.',
-                'attempts_remaining' => 'محاولات متبقية: {count}',
-                'security_notice' => 'إشعار أمني: تم تسجيل محاولة دخول من عنوان IP جديد.',
-                'login_success' => 'تم تسجيل الدخول بنجاح! جاري التحويل...'
-            ],
-            
-            // نصوص صفحة إدارة الأحداث
-            'events' => [
-                'event_management' => 'إدارة الحفلات',
-                'create_new_event' => 'إنشاء حفل جديد',
-                'event_name' => 'اسم الحفل',
-                'create' => 'إنشاء',
-                'current_events' => 'الحفلات الحالية',
-                'event_date' => 'تاريخ الحفل',
-                'actions' => 'إجراءات',
-                'manage_guests' => 'إدارة الضيوف',
-                'send_invitations' => 'إرسال الدعوات',
-                'checkin' => 'تسجيل الدخول',
-                'registration_link' => 'رابط التسجيل',
-                'send_to_all' => 'إرسال لجميع ضيوف هذا الحفل',
-                'send_to_selected' => 'إرسال لمحددين',
-                'bulk_messaging' => 'رسائل جماعية',
-                'global_send_all' => 'إرسال عام لكل الأحداث',
-                'no_events' => 'لا توجد حفلات حالياً.',
-                'event_created_success' => 'تم إنشاء الحفل بنجاح!',
-                'event_deleted_success' => 'تم حذف الحفل وكل بياناته بنجاح.',
-                'event_creation_error' => 'حدث خطأ أثناء إنشاء الحفل.',
-                'event_deletion_error' => 'فشل حذف الحفل.',
-                'enter_event_name' => 'الرجاء إدخال اسم للحفل.',
-                'confirm_delete_event' => 'هل أنت متأكد؟ سيتم حذف الحفل وكل ضيوفه بشكل نهائي.',
-                'messages_sent_success' => 'تم إرسال الرسائل بنجاح!',
-                'global_messages_sent' => 'تم تشغيل إرسال الرسائل العام لجميع الأحداث.',
-                'messaging_error' => 'حدث خطأ في إرسال الرسائل.',
-            ],
-        ],
-        
-        'en' => [
-            // Common texts
-            'common' => [
-                'save' => 'Save',
-                'cancel' => 'Cancel',
-                'delete' => 'Delete',
-                'edit' => 'Edit',
-                'add' => 'Add',
-                'close' => 'Close',
-                'yes' => 'Yes',
-                'no' => 'No',
-                'loading' => 'Loading...',
-                'processing' => 'Processing...',
-                'success' => 'Success',
-                'error' => 'Error',
-                'warning' => 'Warning',
-                'info' => 'Information',
-                'confirm' => 'Confirm',
-                'search' => 'Search',
-                'filter' => 'Filter',
-                'export' => 'Export',
-                'import' => 'Import',
-                'print' => 'Print',
-                'download' => 'Download',
-                'upload' => 'Upload',
-                'send' => 'Send',
-                'back' => 'Back',
-                'next' => 'Next',
-                'previous' => 'Previous',
-                'continue' => 'Continue',
-                'finish' => 'Finish',
-                'name' => 'Name',
-                'email' => 'Email',
-                'phone' => 'Phone',
-                'address' => 'Address',
-                'date' => 'Date',
-                'time' => 'Time',
-                'status' => 'Status',
-                'active' => 'Active',
-                'inactive' => 'Inactive',
-                'enabled' => 'Enabled',
-                'disabled' => 'Disabled',
-                'login' => 'Login',
-                'logout' => 'Logout',
-                'register' => 'Register',
-                'username' => 'Username',
-                'password' => 'Password',
-                'dashboard' => 'Dashboard',
-                'settings' => 'Settings',
-                'profile' => 'Profile',
-                'help' => 'Help',
-                'about' => 'About',
-                'contact' => 'Contact',
-                'home' => 'Home',
-            ],
-            
-            // RSVP page texts
-            'rsvp' => [
-                'wedding_blessing' => 'May Allah bless them and unite them in goodness',
-                'wedding_occasion' => 'On the occasion of their blessed wedding',
-                'location_in' => 'at',
-                'guest_name_label' => 'Mr./Mrs.',
-                'guest_count' => 'Number of Guests',
-                'table_number' => 'Table Number',
-                'not_specified' => 'Not Specified',
-                'confirm_attendance' => 'Confirm Attendance',
-                'decline_attendance' => 'Decline Attendance',
-                'already_confirmed' => 'Your attendance has already been confirmed',
-                'already_declined' => 'Your decline has already been recorded',
-                'success_confirmed' => 'Your attendance has been confirmed successfully!',
-                'success_declined' => 'Your decline has been recorded.',
-                'error_occurred' => 'An error occurred, please try again.',
-                'connection_error' => 'Connection error, please check your internet.',
-                'invalid_link' => 'Invalid or expired invitation link.',
-                'show_qr_instruction' => 'Please show this code at the entrance',
-                'download_qr' => 'Download QR Code',
-                'add_to_calendar' => 'Add to Calendar',
-                'share_invitation' => 'Share Invitation',
-                'view_location' => 'View Location',
-                'guest_details' => 'Guest Details',
-                'welcome_guest' => 'Welcome',
-                'dear_guest' => 'Dear Guest',
-                'get_directions' => 'Get Directions',
-                'entry_card' => 'Entry Card',
-                'qr_code' => 'QR Code',
-                'show_at_entrance' => 'Please show this code at the entrance',
-                'csrf_error' => 'Security token mismatch.',
-                'rate_limit_error' => 'Too many attempts. Please wait.',
-            ],
-            
-            // Register page texts
-            'register' => [
-                'registration_instruction' => 'Please enter your details to confirm or decline attendance',
-                'name_label' => 'Full Name:',
-                'phone_label' => 'Mobile Number (with country code):',
-                'guests_count_label' => 'Number of Guests (including you):',
-                'confirm_attendance' => 'Confirm Attendance',
-                'decline_attendance' => 'Decline Attendance',
-                'select_country' => 'Select Country',
-                'enter_local_number' => 'Enter local mobile number only (example: 791234567)',
-                'enter_full_number' => 'Enter full number with country code (example: +96279123456)',
-                'choose_country_first' => 'Choose country first',
-                'registration_success_confirm' => 'Your attendance has been confirmed successfully! You will now be redirected to your invitation page to get the QR Code.',
-                'registration_success_cancel' => 'Thank you, your decline has been recorded.',
-                'registration_error' => 'An error occurred during registration. The phone number may already be registered.',
-                'fill_all_fields' => 'Please fill in all required fields.',
-                'invalid_phone_format' => 'Please enter local mobile number only (without country code). Example: 791234567',
-                'invalid_phone_international' => 'Please enter the number with full country code (example: 96279...).',
-                'invalid_phone_general' => 'Invalid mobile number format. Please enter the full number with country code.',
-            ],
-            
-            // Login page texts
-            'login' => [
-                'login_title' => 'Login',
-                'welcome_back' => 'Welcome Back',
-                'login_subtitle' => 'Please sign in to access your dashboard',
-                'username_label' => 'Username',
-                'username_placeholder' => 'Enter your username',
-                'password_label' => 'Password',
-                'password_placeholder' => 'Enter your password',
-                'remember_me' => 'Remember me',
-                'login_button' => 'Sign In',
-                'logging_in' => 'Signing in...',
-                'show_password' => 'Show password',
-                'hide_password' => 'Hide password',
-                'error_invalid_credentials' => 'Invalid username or password.',
-                'error_account_locked' => 'Account temporarily locked due to repeated attempts. Please try again after {minutes} minutes.',
-                'error_too_many_attempts' => 'Too many attempts. Please wait {seconds} seconds before trying again.',
-                'error_fill_fields' => 'Please enter both username and password.',
-                'error_csrf' => 'Security token mismatch. Please try again.',
-                'error_general' => 'Sorry, something went wrong. Please try again.',
-                'error_no_event_access' => 'This user is not authorized to access as they are not linked to any event.',
-                'attempts_remaining' => 'Attempts remaining: {count}',
-                'security_notice' => 'Security Notice: Login attempt recorded from new IP address.',
-                'login_success' => 'Login successful! Redirecting...'
-            ],
-            
-            // Events page texts
-            'events' => [
-                'event_management' => 'Event Management',
-                'create_new_event' => 'Create New Event',
-                'event_name' => 'Event Name',
-                'create' => 'Create',
-                'current_events' => 'Current Events',
-                'event_date' => 'Event Date',
-                'actions' => 'Actions',
-                'manage_guests' => 'Manage Guests',
-                'send_invitations' => 'Send Invitations',
-                'checkin' => 'Check-in',
-                'registration_link' => 'Registration Link',
-                'send_to_all' => 'Send to All Event Guests',
-                'send_to_selected' => 'Send to Selected',
-                'bulk_messaging' => 'Bulk Messaging',
-                'global_send_all' => 'Global Send to All Events',
-                'no_events' => 'No events currently available.',
-                'event_created_success' => 'Event created successfully!',
-                'event_deleted_success' => 'Event and all its data deleted successfully.',
-                'event_creation_error' => 'Error occurred while creating event.',
-                'event_deletion_error' => 'Failed to delete event.',
-                'enter_event_name' => 'Please enter an event name.',
-                'confirm_delete_event' => 'Are you sure? The event and all its guests will be permanently deleted.',
-                'messages_sent_success' => 'Messages sent successfully!',
-                'global_messages_sent' => 'Global messaging initiated for all events.',
-                'messaging_error' => 'Error occurred while sending messages.',
-            ],
-        ]
-    ];
-
-    return $texts;
-}
-
-/**
- * دالة الحصول على النصوص لصفحة معينة
- * @param string $page
- * @param string $lang
- * @return array
- */
-function getPageTexts($page, $lang = null) {
-    if ($lang === null) {
-        $lang = getCurrentLanguage();
-    }
-    
-    $allTexts = getTexts();
-    $pageTexts = $allTexts[$lang][$page] ?? [];
-    $commonTexts = $allTexts[$lang]['common'] ?? [];
-    
-    // دمج النصوص المشتركة مع نصوص الصفحة
-    return array_merge($commonTexts, $pageTexts);
-}
-
-/**
- * دالة الحصول على اللغة الحالية
- * @return string
- */
-function getCurrentLanguage() {
-    return $_SESSION['language'] ?? $_COOKIE['language'] ?? 'ar';
-}
-
-/**
- * دالة تغيير اللغة
- * @param string $lang
- */
-function setLanguage($lang) {
-    $lang = in_array($lang, ['ar', 'en']) ? $lang : 'ar';
+// --- Language System ---
+$lang = $_SESSION['language'] ?? $_COOKIE['language'] ?? 'ar';
+if (isset($_POST['switch_language'])) {
+    $lang = $_POST['switch_language'] === 'en' ? 'en' : 'ar';
     $_SESSION['language'] = $lang;
     setcookie('language', $lang, time() + (365 * 24 * 60 * 60), '/');
 }
 
-/**
- * دالة معالجة تغيير اللغة
- */
-function handleLanguageSwitch() {
-    if (isset($_POST['switch_language'])) {
-        $newLang = $_POST['switch_language'] === 'en' ? 'en' : 'ar';
-        setLanguage($newLang);
-        
-        // إعادة توجيه لنفس الصفحة
-        $currentUrl = $_SERVER['REQUEST_URI'];
-        header("Location: $currentUrl");
-        exit;
-    }
+// Language texts
+$texts = [
+    'ar' => [
+        'dashboard' => 'متابعة',
+        'logout' => 'تسجيل الخروج',
+        'back_to_events' => 'عودة للحفلات',
+        'total_invited' => 'إجمالي المدعوين',
+        'confirmed_attendance' => 'تأكيد الحضور',
+        'checked_in_hall' => 'سجلوا الدخول الى القاعة',
+        'declined_attendance' => 'إلغاء الحضور',
+        'awaiting_response' => 'في انتظار الرد',
+        'guest_list' => 'قائمة الضيوف',
+        'export_report_csv' => 'تصدير تقرير (CSV)',
+        'export_dashboard_pdf' => 'تصدير الداشبورد (PDF)',
+        'refresh_data' => 'تحديث البيانات',
+        'refreshing' => 'جاري التحديث...',
+        'search_guest' => 'ابحث باسم الضيف...',
+        'no_guests' => 'لا يوجد ضيوف',
+        'error_fetching_data' => 'حدث خطأ في جلب البيانات',
+        'table_number' => 'طاولة',
+        'statistics_summary' => 'ملخص الإحصائيات',
+        'guest_details' => 'تفاصيل الضيوف',
+        'status_confirmed' => 'مؤكد',
+        'status_declined' => 'معتذر',
+        'status_pending' => 'في الانتظار',
+        'status_checked_in' => 'حضر',
+        'name' => 'الاسم',
+        'phone' => 'الهاتف',
+        'guests_count' => 'عدد الضيوف',
+        'table' => 'الطاولة',
+        'status' => 'الحالة',
+        'checkin_status' => 'حالة الحضور'
+    ],
+    'en' => [
+        'dashboard' => 'Dashboard',
+        'logout' => 'Logout',
+        'back_to_events' => 'Back to Events',
+        'total_invited' => 'Total Invited',
+        'confirmed_attendance' => 'Confirmed Attendance',
+        'checked_in_hall' => 'Checked into Hall',
+        'declined_attendance' => 'Declined Attendance',
+        'awaiting_response' => 'Awaiting Response',
+        'guest_list' => 'Guest List',
+        'export_report_csv' => 'Export Report (CSV)',
+        'export_dashboard_pdf' => 'Export Dashboard (PDF)',
+        'refresh_data' => 'Refresh Data',
+        'refreshing' => 'Refreshing...',
+        'search_guest' => 'Search by guest name...',
+        'no_guests' => 'No guests',
+        'error_fetching_data' => 'Error fetching data',
+        'table_number' => 'Table',
+        'statistics_summary' => 'Statistics Summary',
+        'guest_details' => 'Guest Details',
+        'status_confirmed' => 'Confirmed',
+        'status_declined' => 'Declined',
+        'status_pending' => 'Pending',
+        'status_checked_in' => 'Checked In',
+        'name' => 'Name',
+        'phone' => 'Phone',
+        'guests_count' => 'Guests Count',
+        'table' => 'Table',
+        'status' => 'Status',
+        'checkin_status' => 'Check-in Status'
+    ]
+];
+
+$t = $texts[$lang];
+
+// --- Security Check & Permission Logic ---
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header('Location: login.php');
+    exit;
+}
+$event_id = filter_input(INPUT_GET, 'event_id', FILTER_VALIDATE_INT);
+if (!$event_id) {
+    if ($_SESSION['role'] === 'admin') { header('Location: events.php'); exit; } 
+    else { die('Access Denied: Event ID is required.'); }
+}
+if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'viewer') {
+    die('Access Denied: You do not have permission to view this event dashboard.');
+}
+if ($_SESSION['role'] === 'viewer' && $event_id != ($_SESSION['event_id_access'] ?? null)) {
+    die('Access Denied: You do not have permission to view this event dashboard.');
 }
 
-/**
- * دالة إنشاء زر تغيير اللغة
- * @param string $currentLang
- * @param string $csrfToken
- * @return string
- */
-function getLanguageToggleButton($currentLang = null, $csrfToken = '') {
-    if ($currentLang === null) {
-        $currentLang = getCurrentLanguage();
-    }
-    
-    $newLang = $currentLang === 'ar' ? 'en' : 'ar';
-    $buttonText = $currentLang === 'ar' ? 'English' : 'العربية';
-    
-    $csrfInput = '';
-    if (!empty($csrfToken)) {
-        $csrfInput = '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($csrfToken) . '">';
-    }
-    
-    return '
-    <form method="POST" style="display: inline;">
-        ' . $csrfInput . '
-        <button type="submit" name="switch_language" value="' . $newLang . '" 
-                class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 transition-colors">
-            ' . $buttonText . '
-        </button>
-    </form>';
-}
+// --- CSV Export Logic ---
+if (isset($_GET['export_csv']) && $_GET['export_csv'] === 'true') {
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="guest_report_event_'.$event_id.'_'.date('Y-m-d').'.csv"');
 
-/**
- * دالة إنشاء خيارات HTML للدول (للاستخدام في صفحة التسجيل)
- * @param string $lang
- * @return array
- */
-function getCountriesList($lang = 'ar') {
-    $countries = [
-        'ar' => [
-            '+962' => 'الأردن (+962)',
-            '+966' => 'السعودية (+966)', 
-            '+971' => 'الإمارات (+971)',
-            '+965' => 'الكويت (+965)',
-            '+974' => 'قطر (+974)',
-            '+973' => 'البحرين (+973)',
-            '+968' => 'عُمان (+968)',
-            '+961' => 'لبنان (+961)',
-            '+963' => 'سوريا (+963)',
-            '+964' => 'العراق (+964)',
-            '+970' => 'فلسطين (+970)',
-            '+20' => 'مصر (+20)',
-            '+1' => 'أمريكا/كندا (+1)',
-            '+44' => 'بريطانيا (+44)',
-            '+49' => 'ألمانيا (+49)',
-            '+33' => 'فرنسا (+33)',
-            '+90' => 'تركيا (+90)',
-            'other' => 'دولة أخرى'
-        ],
-        'en' => [
-            '+962' => 'Jordan (+962)',
-            '+966' => 'Saudi Arabia (+966)', 
-            '+971' => 'UAE (+971)',
-            '+965' => 'Kuwait (+965)',
-            '+974' => 'Qatar (+974)',
-            '+973' => 'Bahrain (+973)',
-            '+968' => 'Oman (+968)',
-            '+961' => 'Lebanon (+961)',
-            '+963' => 'Syria (+963)',
-            '+964' => 'Iraq (+964)',
-            '+970' => 'Palestine (+970)',
-            '+20' => 'Egypt (+20)',
-            '+1' => 'USA/Canada (+1)',
-            '+44' => 'UK (+44)',
-            '+49' => 'Germany (+49)',
-            '+33' => 'France (+33)',
-            '+90' => 'Turkey (+90)',
-            'other' => 'Other Country'
-        ]
+    $output = fopen('php://output', 'w');
+    fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+    
+    // CSV Headers based on language
+    $csv_headers = [
+        $t['name'], $t['phone'], $t['guests_count'], 
+        $t['table'], $t['status'], $t['checkin_status'], 
+        'وقت الحضور / Check-in Time'
     ];
+    fputcsv($output, $csv_headers);
+
+    $stmt = $mysqli->prepare("SELECT name_ar, phone_number, guests_count, table_number, status, checkin_status, checkin_time FROM guests WHERE event_id = ?");
+    $stmt->bind_param("i", $event_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     
-    return $countries[$lang] ?? $countries['ar'];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            // Translate status for CSV
+            $status_text = '';
+            switch($row['status']) {
+                case 'confirmed': $status_text = $t['status_confirmed']; break;
+                case 'canceled': $status_text = $t['status_declined']; break;
+                default: $status_text = $t['status_pending']; break;
+            }
+            
+            $checkin_text = ($row['checkin_status'] === 'checked_in') ? $t['status_checked_in'] : '-';
+            
+            fputcsv($output, [
+                $row['name_ar'],
+                $row['phone_number'],
+                $row['guests_count'],
+                $row['table_number'] ?: '-',
+                $status_text,
+                $checkin_text,
+                $row['checkin_time'] ?: '-'
+            ]);
+        }
+    }
+    fclose($output);
+    $stmt->close();
+    $mysqli->close();
+    exit;
 }
 
-/**
- * دالة مساعدة للحصول على نص معين - تحقق من وجود الدالة أولاً
- * @param string $key
- * @param array $texts
- * @param string $default
- * @return string
- */
-if (!function_exists('getText')) {
-    function getText($key, $texts, $default = '') {
-        return $texts[$key] ?? $default;
+// --- PDF Export Logic ---
+if (isset($_GET['export_pdf']) && $_GET['export_pdf'] === 'true') {
+    // Fetch data for PDF
+    $stmt = $mysqli->prepare("SELECT name_ar, guests_count, table_number, status, checkin_status FROM guests WHERE event_id = ?");
+    $stmt->bind_param("i", $event_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $guests = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    
+    // Get event name
+    $event_name = '';
+    $stmt_event = $mysqli->prepare("SELECT event_name FROM events WHERE id = ?");
+    $stmt_event->bind_param("i", $event_id);
+    if ($stmt_event->execute()) {
+        $result = $stmt_event->get_result();
+        if ($row = $result->fetch_assoc()) { $event_name = $row['event_name']; }
     }
+    $stmt_event->close();
+    
+    // Calculate statistics
+    $total = count($guests);
+    $confirmed = $canceled = $pending = $checkedIn = 0;
+    
+    foreach ($guests as $guest) {
+        if ($guest['checkin_status'] === 'checked_in') $checkedIn++;
+        if ($guest['status'] === 'confirmed') $confirmed++;
+        elseif ($guest['status'] === 'canceled') $canceled++;
+        else $pending++;
+    }
+    
+    // Generate HTML for PDF
+    $html = generateDashboardHTML($event_name, $total, $confirmed, $checkedIn, $canceled, $pending, $guests, $t, $lang);
+    
+    // Output HTML that can be printed as PDF
+    echo $html;
+    exit;
 }
 
-/**
- * دالة آمنة لعرض HTML - تحقق من وجود الدالة أولاً
- * @param string $value
- * @param string $default
- * @return string
- */
-if (!function_exists('safeHtml')) {
-    function safeHtml($value, $default = '') {
-        return htmlspecialchars($value ?? $default, ENT_QUOTES, 'UTF-8');
+// --- API Endpoint for Dashboard Display ---
+if (isset($_GET['fetch_data'])) {
+    header('Content-Type: application/json');
+    $stmt = $mysqli->prepare("SELECT name_ar, guests_count, table_number, status, checkin_status FROM guests WHERE event_id = ?");
+    $stmt->bind_param("i", $event_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $guests = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    echo json_encode($guests);
+    $mysqli->close();
+    exit;
+}
+
+// --- Fetch Event Name for Display ---
+$event_name = $t['dashboard'];
+$stmt_event = $mysqli->prepare("SELECT event_name FROM events WHERE id = ?");
+$stmt_event->bind_param("i", $event_id);
+if ($stmt_event->execute()) {
+    $result = $stmt_event->get_result();
+    if ($row = $result->fetch_assoc()) { $event_name = $row['event_name']; }
+    $stmt_event->close();
+}
+
+// Function to generate PDF-ready HTML
+function generateDashboardHTML($event_name, $total, $confirmed, $checkedIn, $canceled, $pending, $guests, $t, $lang) {
+    $dir = $lang === 'ar' ? 'rtl' : 'ltr';
+    $font = $lang === 'ar' ? 'Cairo' : 'Inter';
+    
+    $html = "<!DOCTYPE html>
+    <html lang='$lang' dir='$dir'>
+    <head>
+        <meta charset='UTF-8'>
+        <title>{$t['dashboard']}: $event_name</title>
+        <link href='https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Inter:wght@400;500;600&display=swap' rel='stylesheet'>
+        <style>
+            body { font-family: '$font', sans-serif; margin: 20px; direction: $dir; }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #3b82f6; padding-bottom: 20px; }
+            .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-bottom: 30px; }
+            .stat-card { text-align: center; padding: 20px; border-radius: 10px; border: 2px solid #e5e7eb; }
+            .stat-card.total { border-color: #6b7280; background-color: #f9fafb; }
+            .stat-card.confirmed { border-color: #22c55e; background-color: #dcfce7; }
+            .stat-card.checked-in { border-color: #3b82f6; background-color: #dbeafe; }
+            .stat-card.canceled { border-color: #ef4444; background-color: #fee2e2; }
+            .stat-card.pending { border-color: #f59e0b; background-color: #fef3c7; }
+            .stat-value { font-size: 2.5rem; font-weight: bold; margin-bottom: 5px; }
+            .stat-label { font-size: 1rem; color: #6b7280; }
+            .section-title { font-size: 1.5rem; font-weight: bold; margin: 30px 0 15px 0; color: #374151; }
+            .guest-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+            .guest-column { border: 1px solid #e5e7eb; border-radius: 8px; }
+            .column-header { padding: 15px; font-weight: bold; text-align: center; }
+            .column-header.checked-in { background-color: #3b82f6; color: white; }
+            .column-header.confirmed { background-color: #22c55e; color: white; }
+            .column-header.canceled { background-color: #ef4444; color: white; }
+            .column-header.pending { background-color: #f59e0b; color: white; }
+            .guest-item { padding: 10px 15px; border-bottom: 1px solid #e5e7eb; font-size: 0.9rem; }
+            .guest-item:last-child { border-bottom: none; }
+            .guest-name { font-weight: 600; }
+            .guest-details { color: #6b7280; font-size: 0.8rem; margin-top: 2px; }
+            @media print {
+                body { margin: 0; }
+                .stats-grid { page-break-after: avoid; }
+            }
+        </style>
+    </head>
+    <body>
+        <div class='header'>
+            <h1>{$t['dashboard']}: $event_name</h1>
+            <p style='color: #6b7280; margin: 10px 0;'>" . date('Y-m-d H:i') . "</p>
+        </div>
+        
+        <div class='stats-grid'>
+            <div class='stat-card total'>
+                <div class='stat-value'>$total</div>
+                <div class='stat-label'>{$t['total_invited']}</div>
+            </div>
+            <div class='stat-card confirmed'>
+                <div class='stat-value'>$confirmed</div>
+                <div class='stat-label'>{$t['confirmed_attendance']}</div>
+            </div>
+            <div class='stat-card checked-in'>
+                <div class='stat-value'>$checkedIn</div>
+                <div class='stat-label'>{$t['checked_in_hall']}</div>
+            </div>
+            <div class='stat-card canceled'>
+                <div class='stat-value'>$canceled</div>
+                <div class='stat-label'>{$t['declined_attendance']}</div>
+            </div>
+            <div class='stat-card pending'>
+                <div class='stat-value'>$pending</div>
+                <div class='stat-label'>{$t['awaiting_response']}</div>
+            </div>
+        </div>
+        
+        <h2 class='section-title'>{$t['guest_details']}</h2>
+        <div class='guest-grid'>
+            <div class='guest-column'>
+                <div class='column-header checked-in'>{$t['checked_in_hall']}</div>";
+    
+    foreach ($guests as $guest) {
+        if ($guest['checkin_status'] === 'checked_in') {
+            $guestCount = $guest['guests_count'] ? "({$guest['guests_count']})" : '';
+            $tableNumber = $guest['table_number'] ? "{$t['table_number']}: {$guest['table_number']}" : '';
+            $html .= "<div class='guest-item'>
+                        <div class='guest-name'>{$guest['name_ar']}</div>
+                        <div class='guest-details'>$guestCount $tableNumber</div>
+                      </div>";
+        }
     }
+    
+    $html .= "</div><div class='guest-column'>
+                <div class='column-header confirmed'>{$t['confirmed_attendance']}</div>";
+    
+    foreach ($guests as $guest) {
+        if ($guest['status'] === 'confirmed' && $guest['checkin_status'] !== 'checked_in') {
+            $guestCount = $guest['guests_count'] ? "({$guest['guests_count']})" : '';
+            $tableNumber = $guest['table_number'] ? "{$t['table_number']}: {$guest['table_number']}" : '';
+            $html .= "<div class='guest-item'>
+                        <div class='guest-name'>{$guest['name_ar']}</div>
+                        <div class='guest-details'>$guestCount $tableNumber</div>
+                      </div>";
+        }
+    }
+    
+    $html .= "</div><div class='guest-column'>
+                <div class='column-header canceled'>{$t['declined_attendance']}</div>";
+    
+    foreach ($guests as $guest) {
+        if ($guest['status'] === 'canceled') {
+            $guestCount = $guest['guests_count'] ? "({$guest['guests_count']})" : '';
+            $tableNumber = $guest['table_number'] ? "{$t['table_number']}: {$guest['table_number']}" : '';
+            $html .= "<div class='guest-item'>
+                        <div class='guest-name'>{$guest['name_ar']}</div>
+                        <div class='guest-details'>$guestCount $tableNumber</div>
+                      </div>";
+        }
+    }
+    
+    $html .= "</div><div class='guest-column'>
+                <div class='column-header pending'>{$t['awaiting_response']}</div>";
+    
+    foreach ($guests as $guest) {
+        if ($guest['status'] !== 'confirmed' && $guest['status'] !== 'canceled') {
+            $guestCount = $guest['guests_count'] ? "({$guest['guests_count']})" : '';
+            $tableNumber = $guest['table_number'] ? "{$t['table_number']}: {$guest['table_number']}" : '';
+            $html .= "<div class='guest-item'>
+                        <div class='guest-name'>{$guest['name_ar']}</div>
+                        <div class='guest-details'>$guestCount $tableNumber</div>
+                      </div>";
+        }
+    }
+    
+    $html .= "</div></div></body></html>";
+    return $html;
 }
 ?>
+<!DOCTYPE html>
+<html lang="<?= $lang ?>" dir="<?= $lang === 'ar' ? 'rtl' : 'ltr' ?>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $t['dashboard'] ?>: <?= htmlspecialchars($event_name) ?></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: <?= $lang === 'ar' ? "'Cairo', sans-serif" : "'Inter', sans-serif" ?>; 
+            background-color: #f0f2f5; 
+            padding: 20px; 
+        }
+        .container { max-width: 1200px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); padding: 30px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .header-buttons { display: flex; gap: 12px; align-items: center; }
+        .stat-card { background-color: #f9fafb; border-radius: 10px; padding: 20px; text-align: center; transition: transform 0.2s, box-shadow 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .stat-card .value { font-size: 2.5rem; font-weight: bold; margin-bottom: 8px; }
+        .stat-card .label { font-size: 1rem; color: #6b7280; margin-top: 5px; }
+        .stat-card.confirmed .value { color: #22c55e; }
+        .stat-card.canceled .value { color: #ef4444; }
+        .stat-card.pending .value { color: #f59e0b; }
+        .stat-card.checked-in .value { color: #3b82f6; }
+        .stat-card.total .value { color: #6b7280; }
+        .guest-list-container { max-height: 400px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; min-height: 100px; background-color: #fafafa; }
+        .guest-item { padding: 12px 15px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; background-color: white; margin-bottom: 4px; border-radius: 6px; }
+        .guest-item:last-child { border-bottom: none; }
+        .guest-item:hover { background-color: #f8f9fa; }
+        .guest-name { font-weight: 600; color: #374151; }
+        .guest-details { font-size: 0.875rem; color: #6b7280; }
+        .column-header { font-size: 1.25rem; font-weight: bold; margin-bottom: 12px; padding: 12px; border-radius: 8px; text-align: center; color: white; }
+        .column-header.confirmed { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .column-header.canceled { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .column-header.pending { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .column-header.checked-in { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .empty-state { text-align: center; color: #9ca3af; padding: 30px; font-style: italic; }
+        .search-input { 
+            transition: all 0.3s ease; 
+            border: 2px solid #e5e7eb; 
+        }
+        .search-input:focus { 
+            border-color: #3b82f6; 
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); 
+        }
+        .btn { 
+            transition: all 0.2s ease; 
+            font-weight: 600; 
+        }
+        .btn:hover { 
+            transform: translateY(-1px); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1 class="text-3xl font-bold text-gray-800"><?= $t['dashboard'] ?>: <?= htmlspecialchars($event_name) ?></h1>
+            <div class="header-buttons">
+                <form method="POST" style="display: inline;">
+                    <button type="submit" name="switch_language" value="<?= $lang === 'ar' ? 'en' : 'ar' ?>" 
+                            class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 transition-colors">
+                        <?= $lang === 'ar' ? 'English' : 'العربية' ?>
+                    </button>
+                </form>
+                <?php if ($_SESSION['role'] === 'admin'): ?>
+                    <a href="events.php" class="btn bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg"><?= $t['back_to_events'] ?></a>
+                <?php else: ?>
+                    <a href="logout.php" class="btn bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg"><?= $t['logout'] ?></a>
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+            <div class="stat-card total">
+                <div class="value" id="total-guests">0</div>
+                <div class="label"><?= $t['total_invited'] ?></div>
+            </div>
+            <div class="stat-card confirmed">
+                <div class="value" id="confirmed-guests">0</div>
+                <div class="label"><?= $t['confirmed_attendance'] ?></div>
+            </div>
+            <div class="stat-card checked-in">
+                <div class="value" id="checked-in-guests">0</div>
+                <div class="label"><?= $t['checked_in_hall'] ?></div>
+            </div>
+            <div class="stat-card canceled">
+                <div class="value" id="canceled-guests">0</div>
+                <div class="label"><?= $t['declined_attendance'] ?></div>
+            </div>
+            <div class="stat-card pending">
+                <div class="value" id="pending-guests">0</div>
+                <div class="label"><?= $t['awaiting_response'] ?></div>
+            </div>
+        </div>
+        
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-700"><?= $t['guest_list'] ?></h2>
+            <div class="flex gap-4">
+                <a href="?event_id=<?= $event_id ?>&export_csv=true" 
+                   class="btn bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg">
+                    <?= $t['export_report_csv'] ?>
+                </a>
+                <a href="?event_id=<?= $event_id ?>&export_pdf=true" target="_blank"
+                   class="btn bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg">
+                    <?= $t['export_dashboard_pdf'] ?>
+                </a>
+                <button id="refresh-button" 
+                        class="btn bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">
+                    <?= $t['refresh_data'] ?>
+                </button>
+            </div>
+        </div>
+        
+        <input type="text" id="guest-search" 
+               class="search-input w-full p-3 border rounded-lg mb-6 text-lg" 
+               placeholder="<?= $t['search_guest'] ?>">
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div>
+                <div class="column-header checked-in"><?= $t['checked_in_hall'] ?></div>
+                <div id="checked-in-list" class="guest-list-container"></div>
+            </div>
+            <div>
+                <div class="column-header confirmed"><?= $t['confirmed_attendance'] ?></div>
+                <div id="confirmed-list" class="guest-list-container"></div>
+            </div>
+            <div>
+                <div class="column-header canceled"><?= $t['declined_attendance'] ?></div>
+                <div id="canceled-list" class="guest-list-container"></div>
+            </div>
+            <div>
+                <div class="column-header pending"><?= $t['awaiting_response'] ?></div>
+                <div id="pending-list" class="guest-list-container"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const dashboardApiUrl = 'dashboard.php?event_id=<?= $event_id ?>&fetch_data=true';
+        const texts = <?= json_encode($t, JSON_UNESCAPED_UNICODE) ?>;
+        
+        const totalGuestsEl = document.getElementById('total-guests');
+        const confirmedGuestsEl = document.getElementById('confirmed-guests');
+        const canceledGuestsEl = document.getElementById('canceled-guests');
+        const pendingGuestsEl = document.getElementById('pending-guests');
+        const checkedInGuestsEl = document.getElementById('checked-in-guests');
+        const confirmedListEl = document.getElementById('confirmed-list');
+        const canceledListEl = document.getElementById('canceled-list');
+        const pendingListEl = document.getElementById('pending-list');
+        const checkedInListEl = document.getElementById('checked-in-list');
+        const guestSearchInput = document.getElementById('guest-search');
+        const refreshButton = document.getElementById('refresh-button');
+        
+        let allGuestsData = [];
+
+        async function fetchAndDisplayData() {
+            try {
+                refreshButton.disabled = true;
+                refreshButton.textContent = texts['refreshing'];
+
+                const response = await fetch(dashboardApiUrl);
+                if (!response.ok) { throw new Error(`HTTP error! Status: ${response.status}`); }
+                
+                const data = await response.json();
+                if (data.error) { throw new Error(data.error); }
+
+                allGuestsData = data;
+                updateDashboard(allGuestsData);
+
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                document.querySelector('.container').innerHTML = `<div class="text-center text-red-500 p-10">${texts['error_fetching_data']}: ${error.message}</div>`;
+            } finally {
+                refreshButton.disabled = false;
+                refreshButton.textContent = texts['refresh_data'];
+            }
+        }
+
+        function updateDashboard(guests) {
+            let total = guests.length, confirmed = 0, canceled = 0, pending = 0, checkedIn = 0;
+            
+            // Clear all lists
+            confirmedListEl.innerHTML = '';
+            canceledListEl.innerHTML = '';
+            pendingListEl.innerHTML = '';
+            checkedInListEl.innerHTML = '';
+
+            guests.forEach(guest => {
+                const guestName = guest.name_ar || 'ضيف';
+                const guestCount = guest.guests_count ? `(${guest.guests_count})` : '';
+                const tableNumber = guest.table_number ? `${texts['table_number']}: ${guest.table_number}` : '';
+                
+                const guestItem = document.createElement('div');
+                guestItem.className = 'guest-item';
+                guestItem.innerHTML = `
+                    <div>
+                        <div class="guest-name">${guestName}</div>
+                        <div class="guest-details">${guestCount} ${tableNumber}</div>
+                    </div>
+                `;
+
+                if (guest.checkin_status === 'checked_in') {
+                    checkedIn++;
+                    checkedInListEl.appendChild(guestItem.cloneNode(true));
+                }
+                
+                if (guest.status === 'confirmed') { 
+                    confirmed++;
+                    if (guest.checkin_status !== 'checked_in') {
+                       confirmedListEl.appendChild(guestItem.cloneNode(true));
+                    }
+                } 
+                else if (guest.status === 'canceled') { 
+                    canceled++; 
+                    canceledListEl.appendChild(guestItem.cloneNode(true)); 
+                } 
+                else { 
+                    pending++; 
+                    pendingListEl.appendChild(guestItem.cloneNode(true)); 
+                }
+            });
+
+            // Add empty states
+            if (checkedInListEl.children.length === 0) {
+                checkedInListEl.innerHTML = `<div class="empty-state">${texts['no_guests']}</div>`;
+            }
+            if (confirmedListEl.children.length === 0) {
+                confirmedListEl.innerHTML = `<div class="empty-state">${texts['no_guests']}</div>`;
+            }
+            if (canceledListEl.children.length === 0) {
+                canceledListEl.innerHTML = `<div class="empty-state">${texts['no_guests']}</div>`;
+            }
+            if (pendingListEl.children.length === 0) {
+                pendingListEl.innerHTML = `<div class="empty-state">${texts['no_guests']}</div>`;
+            }
+
+            // Update statistics with animation
+            animateNumber(totalGuestsEl, total);
+            animateNumber(confirmedGuestsEl, confirmed);
+            animateNumber(canceledGuestsEl, canceled);
+            animateNumber(pendingGuestsEl, pending);
+            animateNumber(checkedInGuestsEl, checkedIn);
+        }
+
+        function animateNumber(element, targetNumber) {
+            const currentNumber = parseInt(element.textContent) || 0;
+            const increment = targetNumber > currentNumber ? 1 : -1;
+            const timer = setInterval(() => {
+                const current = parseInt(element.textContent) || 0;
+                if (current === targetNumber) {
+                    clearInterval(timer);
+                } else {
+                    element.textContent = current + increment;
+                }
+            }, 50);
+        }
+
+        // Search functionality
+        guestSearchInput.addEventListener('input', () => {
+            const searchTerm = guestSearchInput.value.toLowerCase().trim();
+            const filteredGuests = allGuestsData.filter(guest => {
+                const name = (guest.name_ar || '').toLowerCase();
+                const table = (guest.table_number || '').toString().toLowerCase();
+                return name.includes(searchTerm) || table.includes(searchTerm);
+            });
+            updateDashboard(filteredGuests);
+        });
+
+        // Event listeners
+        refreshButton.addEventListener('click', fetchAndDisplayData);
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', fetchAndDisplayData);
+        
+        // Auto-refresh every 30 seconds
+        setInterval(fetchAndDisplayData, 30000);
+    </script>
+</body>
+</html>
