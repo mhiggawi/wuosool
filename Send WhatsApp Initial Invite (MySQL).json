@@ -1,0 +1,82 @@
+{
+  "name": "Send Initial Invite with Image (with Maps Link)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "1. بدء الإرسال يدوياً",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [ -440, 80 ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    g.guest_id, \n    g.name_ar, \n    g.phone_number,\n    e.background_image_url,\n    e.google_maps_link, -- Added this line\n    e.event_date_ar,    -- Added this line\n    e.venue_ar          -- Added this line\nFROM guests g\nJOIN events e ON g.event_id = e.id\nWHERE g.event_id = 1 AND g.status = 'pending';",
+        "options": {}
+      },
+      "name": "2. جلب الضيوف والتفاصيل من MySQL",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [ -240, 80 ],
+      "id": "mysql-get-guests",
+      "credentials": { "mySql": { "id": "YOUR_CREDENTIALS_ID", "name": "MySQL Credentials" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = [];\nconst projectBaseUrl = 'https://yourdomain.com/rsvp';\nconst rsvpWebPageUrl = `${projectBaseUrl}/rsvp.php`;\n\nfor (const item of $input.all()) {\n  const guestName = item.json.name_ar;\n  const phoneNumber = item.json.phone_number;\n  const guestId = item.json.guest_id;\n  const imagePath = item.json.background_image_url;\n  const mapsLink = item.json.google_maps_link; // New variable\n  const eventDate = item.json.event_date_ar; // New variable\n  const venue = item.json.venue_ar; // New variable\n\n  let fullImageUrl = null;\n  if (imagePath) {\n    const cleanImagePath = imagePath.startsWith('./') ? imagePath.substring(2) : imagePath;\n    fullImageUrl = `${projectBaseUrl}/${cleanImagePath}`;\n  }\n\n  const inviteLink = `${rsvpWebPageUrl}?id=${guestId}`;\n\n  // --- UPDATED MESSAGE BODY ---\n  let messageBody = `مرحباً ${guestName}،\\n\\n`;\n  messageBody += `نتشرف بدعوتكم لحضور حفلنا.\\n\\n`;\n  messageBody += `التاريخ: ${eventDate}\\n`;\n  messageBody += `المكان: ${venue}\\n\\n`;\n  messageBody += `للوصول إلى الموقع عبر خرائط جوجل:\\n${mapsLink}\\n\\n`;\n  messageBody += `رابط دعوتك الشخصية:\\n${inviteLink}`;\n\n  items.push({\n    json: {\n      phoneNumber: phoneNumber,\n      messageBody: messageBody,\n      invitationImageUrl: fullImageUrl\n    }\n  });\n}\nreturn items;"
+      },
+      "name": "3. تجهيز الرسالة والصورة",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ -20, 80 ],
+      "id": "prepare-invite-message"
+    },
+    {
+      "parameters": { "conditions": { "string": [ { "value1": "={{$json.invitationImageUrl}}", "operation": "isNotEmpty" } ] } },
+      "name": "4. هل توجد صورة؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [ 200, 80 ],
+      "id": "if-image-exists"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ultramsg.com/instanceXXXXX/messages/image",
+        "sendQuery": true,
+        "queryParameters": { "parameters": [ { "name": "token", "value": "your_ultramsg_token" } ] },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": { "parameters": [ { "name": "to", "value": "={{$json.phoneNumber}}" }, { "name": "image", "value": "={{$json.invitationImageUrl}}" }, { "name": "caption", "value": "={{$json.messageBody}}" } ] }
+      },
+      "name": "5a. إرسال (صورة + نص)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [ 420, -20 ],
+      "id": "send-whatsapp-image"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.ultramsg.com/instanceXXXXX/messages/chat",
+        "sendQuery": true,
+        "queryParameters": { "parameters": [ { "name": "token", "value": "your_ultramsg_token" } ] },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": { "parameters": [ { "name": "to", "value": "={{$json.phoneNumber}}" }, { "name": "body", "value": "={{$json.messageBody}}" } ] }
+      },
+      "name": "5b. إرسال (نص فقط)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [ 420, 180 ],
+      "id": "send-whatsapp-chat"
+    }
+  ],
+  "connections": {
+    "1. بدء الإرسال يدوياً": { "main": [ [ { "node": "2. جلب الضيوف والتفاصيل من MySQL", "type": "main", "index": 0 } ] ] },
+    "2. جلب الضيوف والتفاصيل من MySQL": { "main": [ [ { "node": "3. تجهيز الرسالة والصورة", "type": "main", "index": 0 } ] ] },
+    "3. تجهيز الرسالة والصورة": { "main": [ [ { "node": "4. هل توجد صورة؟", "type": "main", "index": 0 } ] ] },
+    "4. هل توجد صورة؟": { "main": [ [ { "node": "5a. إرسال (صورة + نص)", "type": "main", "index": 0 } ], [ { "node": "5b. إرسال (نص فقط)", "type": "main", "index": 0 } ] ] }
+  }
+}

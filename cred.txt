@@ -1,0 +1,29 @@
+vps:
+https://my.racknerd.com/index.php?rp=/login
+username :mohammadhijj...com
+Hi...@300
+for vps server:
+https://nerdvm.racknerd.com/login.php
+vmuser240193
+saved on chrome
+vps login using putty:
+ip: 192.210.203.21
+Hijj...@300**@
+
+Operating System	Debian 12 64 bit
+IPv6 Address	0
+Disk Space	40 GB
+Bandwidth	3.42 TB
+Memory	2 GB
+Swap	1 GB
+
+database:
+
+Username
+mohammadhijjawi92
+Password
+MveFCOX0flaSQ1wu
+
+ultramsg:
+moh..
+Hi...*@
