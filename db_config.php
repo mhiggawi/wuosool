@@ -8,13 +8,13 @@
 define('DB_SERVER', 'localhost');
 
 // اسم مستخدم قاعدة البيانات
-define('DB_USERNAME', 'u747253029_hijjawi'); // مثال: 'root' أو اسم المستخدم الخاص بك
+define('DB_USERNAME', 'u747253029_dbhijjawi'); // مثال: 'root' أو اسم المستخدم الخاص بك
 
 // كلمة مرور مستخدم قاعدة البيانات
-define('DB_PASSWORD', 'Hijjawi@1300'); // مثال: كلمة المرور الخاصة بك
+define('DB_PASSWORD', 'Hijjawi@1300**@'); // مثال: كلمة المرور الخاصة بك
 
 // اسم قاعدة البيانات التي أنشأتها
-define('DB_NAME', 'u747253029_rsvp'); // مثال: 'invitation_system'
+define('DB_NAME', 'u747253029_wosuol'); // مثال: 'invitation_system'
 
 // --- لا تقم بتعديل ما بعد هذا السطر ---
 
