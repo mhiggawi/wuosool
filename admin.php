@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_event_settings
         
         // Current images
         $current_display_image = $_POST['current_display_image'] ?? '';
-        $current_whatsapp_image = $_POST['current_whatsapp_image'] ?? '';
+       // $current_whatsapp_image = $_POST['current_whatsapp_image'] ?? '';
 
         // Handle Display Image upload/removal
         if (isset($_FILES['display_image_upload']) && $_FILES['display_image_upload']['error'] === UPLOAD_ERR_OK) {
