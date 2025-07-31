@@ -291,7 +291,7 @@ $mysqli->close();
     <style>
         body { 
             font-family: <?= $lang === 'ar' ? "'Cairo', sans-serif" : "'Inter', sans-serif" ?>; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-color: #ffffff; /* تم تغيير الخلفية إلى اللون الأبيض */
             min-height: 100vh;
             display: flex; 
             justify-content: center; 
@@ -732,7 +732,7 @@ $mysqli->close();
                 <!-- Guest Welcome Section -->
                 <div class="guest-welcome">
                     <h2 class="text-xl font-bold text-blue-800 mb-2">
-                        <i class="fas fa-heart text-red-500"></i>
+                       
                         <?= $t['welcome_guest'] ?>
                     </h2>
                     <p class="text-lg font-semibold text-blue-700">
