@@ -274,7 +274,7 @@ $mysqli->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $t['login_title'] ?> - دعواتي</title>
+    <title><?= $t['login_title'] ?> - wosuol.com</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -640,8 +640,8 @@ $mysqli->close();
 
         <!-- Footer Links -->
         <div class="footer-links">
-            <a href="#" onclick="alert('<?= $lang === 'ar' ? 'تواصل مع المطور للحصول على المساعدة' : 'Contact developer for support' ?>');">
-                <i class="fas fa-question-circle"></i>
+            <a href="#" onclick="alert('<?= $lang === 'ar' ? 'تواصل معنا 962799121049  للحصول على المساعدة' : 'Contact us 962799121049 for support' ?>');">
+
                 <?= $lang === 'ar' ? 'مساعدة' : 'Help' ?>
             </a>
             <a href="#" onclick="alert('<?= $lang === 'ar' ? 'تواصل مع الإدارة لاستعادة كلمة المرور' : 'Contact admin to reset password' ?>');">
