@@ -621,5 +621,9 @@ function generateDashboardHTML($event_name, $total, $confirmed, $checkedIn, $can
         // Auto-refresh every 30 seconds
         setInterval(fetchAndDisplayData, 30000);
     </script>
+<!-- Footer with Copyright -->
+ <footer class="mt-8 text-center text-gray-500 text-sm border-t pt-4">
+        <p>&copy; <?= date('Y') ?> <a href="https://wosuol.com" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium">وصول - Wosuol.com</a> - جميع الحقوق محفوظة</p>
+    </footer>
 </body>
 </html>
